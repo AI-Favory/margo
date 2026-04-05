@@ -1,11 +1,31 @@
-# WordPress
+# WordPress core (géré par WordPress.org, pas à versionner)
+wp-admin/
+wp-includes/
+wp-*.php
+xmlrpc.php
+index.php
+license.txt
+readme.html
+
+# Fichiers sensibles
 wp-config.php
+
+# Uploads et cache
 wp-content/uploads/
 wp-content/cache/
 wp-content/upgrade/
 wp-content/backup-db/
 wp-content/advanced-cache.php
 wp-content/wp-cache-config.php
+
+# Thèmes par défaut (pas votre code)
+wp-content/themes/twentytwentythree/
+wp-content/themes/twentytwentyfour/
+wp-content/themes/twentytwentyfive/
+
+# Plugins préinstallés
+wp-content/plugins/akismet/
+wp-content/plugins/hello.php
 
 # Logs
 *.log
