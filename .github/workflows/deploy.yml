@@ -1,0 +1,24 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_DEPLOY_KEY }}
+          script: |
+            cd /var/www/margo
+            git pull origin main
+            sudo chown -R www-data:www-data /var/www/margo
+            sudo find /var/www/margo -type d -exec chmod 755 {} \;
+            sudo find /var/www/margo -type f -exec chmod 644 {} \;
