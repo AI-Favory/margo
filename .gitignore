@@ -28,6 +28,10 @@ wp-content/themes/twentytwentyfive/
 wp-content/plugins/akismet/
 wp-content/plugins/hello.php
 
+# Scripts locaux avec credentials
+db-push.sh
+db-pull.sh
+
 # Logs
 *.log
 error_log
