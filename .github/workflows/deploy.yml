@@ -10,15 +10,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy via SSH
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_DEPLOY_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy via rsync
+        run: |
+          rsync -avz --delete \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='wp-config.php' \
+            --exclude='wp-content/uploads/' \
+            --exclude='wp-content/cache/' \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            ./ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/margo/
+
+      - name: Fix permissions
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_DEPLOY_KEY }}
           script: |
-            cd /var/www/margo
-            git pull origin main
             sudo chown -R www-data:www-data /var/www/margo
             sudo find /var/www/margo -type d -exec chmod 755 {} \;
             sudo find /var/www/margo -type f -exec chmod 644 {} \;
