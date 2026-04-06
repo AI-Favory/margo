@@ -16,9 +16,18 @@ jobs:
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.VPS_DEPLOY_KEY }}" > ~/.ssh/deploy_key
+          echo "${{ secrets.VPS_DEPLOY_KEY }}" | tr -d '\r' > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Set ubuntu ownership for rsync
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_DEPLOY_KEY }}
+          script: |
+            sudo chown -R ubuntu:ubuntu /var/www/margo
 
       - name: Deploy via rsync
         run: |
@@ -30,6 +39,19 @@ jobs:
             --exclude='wp-includes/' \
             --exclude='wp-content/uploads/' \
             --exclude='wp-content/cache/' \
-            --chown=www-data:www-data \
             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
             ./ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/margo/
+
+      - name: Restore www-data ownership and permissions
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_DEPLOY_KEY }}
+          script: |
+            sudo chown -R www-data:www-data /var/www/margo
+            sudo chmod -R 755 /var/www/margo
+            sudo chmod 640 /var/www/margo/wp-config.php
+            sudo chmod -R 775 /var/www/margo/wp-content/uploads
+            sudo chmod -R 775 /var/www/margo/wp-content/cache
+            echo "✅ Deployment completed successfully!"
