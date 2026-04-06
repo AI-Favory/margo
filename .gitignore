@@ -35,6 +35,7 @@ db-pull.sh
 # Logs
 *.log
 error_log
+wp-content/debug.log
 
 # OS
 .DS_Store
