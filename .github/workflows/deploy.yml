@@ -30,5 +30,6 @@ jobs:
             --exclude='wp-includes/' \
             --exclude='wp-content/uploads/' \
             --exclude='wp-content/cache/' \
+            --chown=www-data:www-data \
             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
             ./ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/margo/
